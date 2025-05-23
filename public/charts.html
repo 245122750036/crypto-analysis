@@ -1,0 +1,131 @@
+<!-- Updated charts.html with line and bar charts only -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto Dashboard | Charts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Chart.js Core and Date Adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="logo-container">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11.944 17.97L4.58 13.62 11.943 24l7.37-10.38-7.372 4.35h.003zM12.056 0L4.69 12.223l7.365 4.354 7.365-4.35L12.056 0z" />
+        </svg>
+        <h2>CryptoDash</h2>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-item">Home</a>
+        <a href="charts.html" class="nav-item active">Charts</a>
+        <a href="reports.html" class="nav-item">Reports</a>
+      </nav>
+      <div class="market-summary">
+        <h3>Market Summary</h3>
+        <div class="summary-info">
+          <p id="global-market-cap">Global Market Cap: $0.00T</p>
+          <p id="global-volume">24h Volume: $0.00B</p>
+          <p id="btc-dominance">BTC Dominance: 0.00%</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="dashboard-header">
+        <div class="header-title">
+          <h1>Interactive Charts</h1>
+          <p>Real-time cryptocurrency charts and metrics</p>
+        </div>
+        <div class="theme-toggle">
+                    <button id="theme-toggle-btn">
+                        <svg class="light-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 21V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.22 4.22L5.64 5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.36 18.36L19.78 19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M1 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.22 19.78L5.64 18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg class="dark-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+        
+      </header>
+
+      <section class="chart-controls">
+        <div class="control-group">
+          <label for="coin-select">Cryptocurrency:</label>
+          <select id="coin-select" class="control-input"></select>
+        </div>
+        <div class="control-group">
+          <label for="time-range">Time Range:</label>
+          <select id="time-range" class="control-input">
+            <option value="1">1 Day</option>
+            <option value="7">7 Days</option>
+            <option value="30">30 Days</option>
+            <option value="90">90 Days</option>
+            <option value="365">1 Year</option>
+            <option value="max">All Time</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="chart-type">Chart Type:</label>
+          <select id="chart-type" class="control-input">
+            <option value="line">Line Chart</option>
+            <option value="bar">Bar Chart</option>
+          </select>
+        </div>
+        <button id="update-chart-btn" class="update-btn">Update Chart</button>
+      </section>
+
+      <section class="price-info">
+        <div class="price-stats" id="price-stats">
+          <div class="price-stat"><span class="stat-label">Current Price</span><span class="stat-value" id="current-price">$0.00</span></div>
+          <div class="price-stat"><span class="stat-label">24h High</span><span class="stat-value" id="high-24h">$0.00</span></div>
+          <div class="price-stat"><span class="stat-label">24h Low</span><span class="stat-value" id="low-24h">$0.00</span></div>
+          <div class="price-stat"><span class="stat-label">24h Change</span><span class="stat-value" id="change-24h">0.00%</span></div>
+          <div class="price-stat"><span class="stat-label">All Time High</span><span class="stat-value" id="ath">$0.00</span></div>
+        </div>
+      </section>
+
+      <section class="chart-container">
+        <canvas id="price-chart" height="100"></canvas>
+      </section>
+
+      <section class="market-metrics">
+        <h2>Market Metrics</h2>
+        <div class="metrics-grid">
+          <div class="metric-card"><h3>Market Cap</h3><div class="metric-value" id="market-cap">$0.00B</div></div>
+          <div class="metric-card"><h3>Volume (24h)</h3><div class="metric-value" id="volume-24h">$0.00B</div></div>
+          <div class="metric-card"><h3>Circulating Supply</h3><div class="metric-value" id="circulating-supply">0.00M</div></div>
+          <div class="metric-card"><h3>Total Supply</h3><div class="metric-value" id="total-supply">0.00M</div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="app-footer">
+    <p>&copy; 2025 CryptoDash. Data provided by CoinGecko API</p>
+  </footer>
+
+  <!-- Custom App Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/debug.js"></script>
+  <script src="js/charts.js"></script>
+</body>
+</html>
