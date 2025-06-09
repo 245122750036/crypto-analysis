@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Dashboard | Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    
+
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <img src="https://fly.storage.tigris.dev/sticker-bucket/prediction-2307-sticker.png"
+                     alt="Crypto Panda Logo"
+                     class="panda-logo" />
+                <h2>Crypto Panda</h2>
+            </div>
+
+            <nav class="main-nav">
+                <a href="index.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Home
+                </a>
+                <a href="charts.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 20V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 20V4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M6 20V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Charts
+                </a>
+                <a href="reports.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Reports
+                </a>
+            </nav>
+
+            <div class="market-summary">
+                <h3>Market Summary</h3>
+                <div class="summary-info">
+                    <p id="global-market-cap">Global Market Cap: $0.00T</p>
+                    <p id="global-volume">24h Volume: $0.00B</p>
+                    <p id="btc-dominance">BTC Dominance: 0.00%</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="dashboard-header">
+                <div class="header-title">
+                    <h1>Cryptocurrency Dashboard</h1>
+                    <p>Real-time cryptocurrency prices and market data</p>
+                </div>
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn" aria-label="Toggle light and dark theme">
+                        <svg class="light-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 1V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 21V23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.22 4.22L5.64 5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.36 18.36L19.78 19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M1 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 12H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4.22 19.78L5.64 18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.36 5.64L19.78 4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <svg class="dark-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <section class="top-movers">
+                <h2>Top Movers</h2>
+                <div class="top-movers-grid" id="top-movers-container">
+                    <!-- Example static content with symbols, replace with dynamic JS if needed -->
+                    <div class="mover-card">
+                        <span class="mover-symbol">₿</span>
+                        <strong>Bitcoin</strong>
+                        <div>$ 1,02,781</div>
+                        <div class="negative-change">-2.29%</div>
+                    </div>
+                    <div class="mover-card">
+                        <span class="mover-symbol">Ξ</span>
+                        <strong>Ethereum</strong>
+                        <div>$ 2,457.24</div>
+                        <div class="negative-change">-6.63%</div>
+                    </div>
+                    <div class="mover-card">
+                        <span class="mover-symbol">₮</span>
+                        <strong>Tether</strong>
+                        <div>$ 1</div>
+                        <div class="positive-change">0.01%</div>
+                    </div>
+                    <div class="mover-card">
+                        <span class="mover-symbol">✕</span>
+                        <strong>XRP</strong>
+                        <div>$ 2.14</div>
+                        <div class="negative-change">-3.45%</div>
+                    </div>
+                </div>
+            </section>
+            <style>
+                .mover-symbol {
+                    font-size: 1.5em;
+                    margin-right: 6px;
+                    vertical-align: middle;
+                }
+                .mover-card {
+                    display: inline-block;
+                    min-width: 140px;
+                    margin-right: 40px;
+                }
+                .negative-change {
+                    color: #e74c3c;
+                }
+                .positive-change {
+                    color: #27ae60;
+                }
+            </style>
+
+            <section class="market-overview">
+                <div class="section-header">
+                    <h2>Market Overview</h2>
+                    
+                </div>
+                <div class="crypto-table-container">
+                    <table class="crypto-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>24h %</th>
+                                <th>Market Cap</th>
+                                <th>Volume (24h)</th>
+                                <th>Last 7 Days</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crypto-table-body">
+                            <!-- Crypto data loaded dynamically -->
+                            <tr class="skeleton-row">
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-chart"></div></td>
+                            </tr>
+                            <tr class="skeleton-row">
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-chart"></div></td>
+                            </tr>
+                            <tr class="skeleton-row">
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-line"></div></td>
+                                <td><div class="skeleton-chart"></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be added dynamically -->
+                </div>
+            </section>
+
+            <section class="quick-stats">
+                <h2>Quick Stats Overview</h2>
+                <div class="stats-grid">
+                    <div class="stats-card" id="bitcoin-dominance">
+                        <h3>Bitcoin Dominance</h3>
+                        <div class="stat-value">
+                            <span id="btc-dominance-value">--</span>
+                        </div>
+                        <canvas id="dominance-chart" height="80"></canvas>
+                    </div>
+                    <div class="stats-card" id="market-volume">
+                        <h3>24h Market Volume</h3>
+                        <div class="stat-value">
+                            <span id="market-volume-value">--</span>
+                        </div>
+                        <canvas id="volume-chart" height="80"></canvas>
+                    </div>
+                    <div class="stats-card" id="active-cryptocurrencies">
+                        <h3>Active Cryptocurrencies</h3>
+                        <div class="stat-value">
+                            <span id="active-crypto-value">--</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 Crypto Analysis. Data provided by CoinGecko API</p>
+    </footer>
+
+    <script src="js/api.js"> </script>
+    <script src="js/home.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/debug.js"></script>
+
+</body>
+</html>
