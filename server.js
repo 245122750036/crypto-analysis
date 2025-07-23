@@ -2,73 +2,98 @@ const express = require('express');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const puppeteer = require('puppeteer');
+const axios = require('axios');
+const ARIMA = require('arima'); //  ARIMA imported
+
 const app = express();
-const PORT = 3000; // Changed from 5000 to 3000
+const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
- // Serve frontend files
+// =========================
+//  ARIMA FORECAST FUNCTION
+// =========================
+function arimaForecast(prices, predictDays = 7, lastTimestamp) {
+  const arima = new ARIMA({ p: 2, d: 1, q: 2, verbose: false }).train(prices);
 
-// Mock API endpoints
+  // Predict next 7 values
+  const [predicted, errors] = arima.predict(predictDays);
+
+  // Use last date from historical data if available
+  let lastDate = lastTimestamp ? new Date(lastTimestamp) : new Date();
+  const predictions = [];
+  for (let i = 0; i < predictDays; i++) {
+    lastDate.setDate(lastDate.getDate() + 1);
+    predictions.push({
+      date: lastDate.toISOString().slice(0, 10),
+      price: predicted[i].toFixed(2),
+      error: errors[i].toFixed(2)
+    });
+  }
+  return predictions;
+}
+
+// =========================
+//  API ENDPOINTS
+// =========================
+
+// Coin Details
 app.get('/api/coin-details/:coinId', async (req, res) => {
   const coinId = req.params.coinId;
   const url = `https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&market_data=true`;
-
   try {
-    const response = await fetch(url);
-    const data = await response.json();
-    res.json(data);
+    const response = await axios.get(url);
+    res.json(response.data);
   } catch (error) {
     console.error("Error fetching coin details:", error);
     res.status(500).json({ error: "Failed to fetch data" });
   }
 });
 
+// Mock Crypto Data
 app.get('/api/crypto-data', (req, res) => {
   res.json([{ name: "Bitcoin", symbol: "BTC", current_price: 68000, market_cap: 1200000000, total_volume: 250000000, price_change_percentage_24h: 2.3, image: "https://example.com/btc.png" }]);
 });
 
+// Global Data
 app.get('/api/global-data', (req, res) => {
   res.json({ market_cap_percentage: { btc: 45.6 }, active_cryptocurrencies: 9850, active_exchanges: 500 });
 });
 
+// Historical Mock Data
 app.get('/api/historical-data/:coin/:days', (req, res) => {
   const { coin, days } = req.params;
   res.json({
     prices: Array.from({ length: parseInt(days) }, (_, i) => [Date.now() - i * 86400000, 60000 + Math.random() * 5000])
   });
 });
-// Express backend (Node.js)
-app.get("/api/coin-details/:id", async (req, res) => {
-  const id = req.params.id;
-  try {
-    const response = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch coin data" });
-  }
-});
 
+// =========================
+// SEND REPORT (WITH ARIMA FORECAST)
+// =========================
 app.post('/api/send-report', async (req, res) => {
   const { email, coin, timeframe, reportData } = req.body;
 
-  // Generate a simple 7-day prediction (mock: +2% per day)
-  const predictions = [];
-  let price = Number(reportData.current_price);
-  for (let i = 1; i <= 7; i++) {
-    price = price * 1.02; // increase by 2% each day
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    predictions.push({
-      date: date.toISOString().slice(0, 10),
-      price: price.toFixed(2)
+  // 1. Fetch historical 30-day data for ARIMA
+  let histData;
+  try {
+    const histRes = await axios.get(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart`, {
+      params: { vs_currency: 'usd', days: 30, interval: 'daily' }
     });
+    histData = histRes.data;
+  } catch (err) {
+    console.error("Error fetching historical data:", err.message);
+    return res.status(500).json({ error: "Failed to fetch historical data" });
   }
 
-  // Build the preview report HTML with Chart.js for predictions
+  // 2. Run ARIMA Forecast
+  const prices = histData.prices.map(p => p[1]);
+  const lastTimestamp = histData.prices[histData.prices.length - 1][0];
+  const predictions = arimaForecast(prices, 7, lastTimestamp);
+
+  // 3. Build Report HTML with Chart.js
   const previewReportHtml = `
     <html>
       <head>
@@ -83,7 +108,7 @@ app.post('/api/send-report', async (req, res) => {
         </style>
       </head>
       <body>
-        <div class="report-container">
+        <div class="report-container" id="report-container">
           <h2 style="margin-top:0;margin-bottom:8px;font-size:1.5em;">${coin} Report</h2>
           <div style="color:#888;font-size:0.95em;margin-bottom:18px;">
             Generated on: ${new Date().toLocaleString()}
@@ -133,31 +158,30 @@ app.post('/api/send-report', async (req, res) => {
     </html>
   `;
 
-  // Generate screenshot with Puppeteer
-  let screenshotBuffer;
+  // 4. Generate PDF with Puppeteer
+  let pdfBuffer;
   try {
     const browser = await puppeteer.launch({ headless: "new" });
     const page = await browser.newPage();
     await page.setContent(previewReportHtml, { waitUntil: 'networkidle0' });
     await page.waitForSelector('#predictionChart');
-    // Wait until the chart canvas has pixels drawn (not blank)
+
     await page.waitForFunction(() => {
       const canvas = document.getElementById('predictionChart');
       if (!canvas) return false;
       const ctx = canvas.getContext('2d');
-      const pixelBuffer = new Uint32Array(
-        ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer
-      );
+      const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
       return pixelBuffer.some(color => color !== 0);
     });
-    screenshotBuffer = await page.screenshot({ type: 'png' });
+
+    pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
     await browser.close();
   } catch (err) {
-    console.error('Puppeteer screenshot error:', err);
-    screenshotBuffer = null;
+    console.error('Puppeteer PDF generation error:', err);
+    pdfBuffer = null;
   }
 
-  // Email options with screenshot attachment (HTML body can remain as before)
+  // 5. Send Email with ARIMA Predictions
   const mailOptions = {
     from: 'vidishareddy984@gmail.com',
     to: email,
@@ -174,21 +198,18 @@ app.post('/api/send-report', async (req, res) => {
         <div><strong>Analysis:</strong> ${reportData.analysis}</div>
         <h3>Future Prediction (Next 7 Days)</h3>
         <ul>
-          ${predictions.map(p => `<li><strong>${p.date}:</strong> $${p.price}</li>`).join('')}
+          ${predictions.map(p => `<li><strong>${p.date}:</strong> $${p.price} (±${p.error})</li>`).join('')}
         </ul>
-        <p style="margin-top:24px;">See attached image for a screenshot of the preview report with chart.</p>
+        <p style="margin-top:24px;">See attached PDF for full report with chart.</p>
       </div>
     `,
-    attachments: screenshotBuffer
-      ? [{
-          filename: 'preview-report.png',
-          content: screenshotBuffer,
-          contentType: 'image/png'
-        }]
-      : []
+    attachments: pdfBuffer ? [{
+      filename: 'crypto-report.pdf',
+      content: pdfBuffer,
+      contentType: 'application/pdf'
+    }] : []
   };
 
-  // Configure your SMTP transporter (use your real credentials)
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -196,7 +217,7 @@ app.post('/api/send-report', async (req, res) => {
       pass: 'drba ahmj gitp mvxf'
     },
     port: 465,
-    secure: false // Use TLS, not SSL
+    secure: false
   });
 
   try {
@@ -208,6 +229,9 @@ app.post('/api/send-report', async (req, res) => {
   }
 });
 
+// =========================
+//  START SERVER
+// =========================
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
